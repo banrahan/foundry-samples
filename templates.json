@@ -1,7 +1,7 @@
 [
   {
     "title": "Hello World agent (Responses, Agent Framework, C#)",
-    "description": "Minimal Hello World agent using the Responses protocol with the Agent Framework approach in C#. Uses Microsoft.Agents.AI to create an AIAgent backed by a Foundry model.",
+    "description": "Minimal C# agent using Agent Framework with the Responses protocol. The C# equivalent of the Python basic agent \u2014 a good starting point for .NET developers.",
     "languages": [
       "dotnetCsharp"
     ],
@@ -9,15 +9,13 @@
     "source": "samples/csharp/hosted-agents/agent-framework/hello-world/agent.manifest.yaml",
     "extensionTags": [
       "example",
-      "Responses Protocol",
-      "recommended",
-      "featured"
+      "Responses Protocol"
     ],
     "templateType": "extension.ai.agent"
   },
   {
     "title": "Agent with Local Tools (Responses, Agent Framework, C#)",
-    "description": "A travel assistant agent with local C# function tools for hotel search in Seattle.",
+    "description": "C# agent with local function tools. Shows how to define typed tool functions that the model can call, using a travel assistant scenario with hotel search.",
     "languages": [
       "dotnetCsharp"
     ],
@@ -32,7 +30,7 @@
   },
   {
     "title": "Agent with MCP Tools (Responses, Agent Framework, C#)",
-    "description": "A developer assistant with remote MCP tools connecting to GitHub and Microsoft Learn documentation servers.",
+    "description": "C# agent connected to remote MCP tool servers. Demonstrates connecting to GitHub and Microsoft Learn documentation services as external tools.",
     "languages": [
       "dotnetCsharp"
     ],
@@ -47,7 +45,7 @@
   },
   {
     "title": "Hello World agent (Invocations, without a framework, C#)",
-    "description": "Minimal Hello World agent using the Invocations protocol with a bring-your-own approach in C#. Calls a Foundry model via the Responses API and returns the response as a streaming SSE event stream.",
+    "description": "Minimal C# agent using the Invocations protocol without a framework. Shows the raw bring-your-own pattern with direct Azure OpenAI SDK calls and self-managed sessions.",
     "languages": [
       "dotnetCsharp"
     ],
@@ -55,14 +53,13 @@
     "source": "samples/csharp/hosted-agents/bring-your-own/invocations/HelloWorld/agent.manifest.yaml",
     "extensionTags": [
       "example",
-      "Invocations Protocol",
-      "featured"
+      "Invocations Protocol"
     ],
     "templateType": "extension.ai.agent"
   },
   {
     "title": "Note-taking agent (Responses, without a framework, C#)",
-    "description": "A note-taking agent using the Responses protocol with Azure OpenAI function calling in C#. Demonstrates tool use with per-session JSONL persistence.",
+    "description": "C# agent demonstrating function calling with the Responses protocol. Uses save/get note tools to show how the model invokes typed functions and persists data across turns.",
     "languages": [
       "dotnetCsharp"
     ],
@@ -77,7 +74,7 @@
   },
   {
     "title": "Agent with Local Tools (Responses, Agent Framework, Python)",
-    "description": "An Agent Framework agent with local tools hosted by Foundry.",
+    "description": "Shows how to give an agent callable Python functions using the @tool decorator. The model decides when to call them based on the function signature and docstring.",
     "languages": [
       "python"
     ],
@@ -92,7 +89,7 @@
   },
   {
     "title": "Agent with MCP Tools (Responses, Agent Framework, Python)",
-    "description": "An Agent Framework agent with remote MCP tools hosted by Foundry.",
+    "description": "Connects an agent to remote tool servers using the Model Context Protocol (MCP). Demonstrates wiring up GitHub and other external services as tools the model can call.",
     "languages": [
       "python"
     ],
@@ -107,7 +104,7 @@
   },
   {
     "title": "Agent with Foundry Toolbox (Responses, Agent Framework, Python)",
-    "description": "An Agent Framework agent with Foundry Toolbox integration.",
+    "description": "Loads a shared, managed collection of tools from a Foundry Toolbox. Shows async toolbox loading and how to use platform-managed tool registries instead of local tool definitions.",
     "languages": [
       "python"
     ],
@@ -122,7 +119,7 @@
   },
   {
     "title": "Hello World agent (Invocations, without a framework, Python)",
-    "description": "Minimal Hello World agent using the Invocations protocol with a bring-your-own approach. Calls a Foundry model via the Responses API and returns the response as a streaming SSE event stream.",
+    "description": "Minimal bring-your-own agent using the Invocations protocol. Demonstrates self-managed conversation history with an in-memory session store. Use this when you need full HTTP control without a framework.",
     "languages": [
       "python"
     ],
@@ -130,14 +127,13 @@
     "source": "samples/python/hosted-agents/bring-your-own/invocations/hello-world/agent.manifest.yaml",
     "extensionTags": [
       "example",
-      "Invocations Protocol",
-      "featured"
+      "Invocations Protocol"
     ],
     "templateType": "extension.ai.agent"
   },
   {
     "title": "Hello World agent (Responses, without a framework, Python)",
-    "description": "Minimal Hello World agent using the Responses protocol with a bring-your-own approach. Calls a Foundry model via the Responses API and returns the response.",
+    "description": "Minimal bring-your-own agent using the Responses protocol. Shows the simplest possible integration \u2014 the protocol SDK handles HTTP and SSE, you supply the model call.",
     "languages": [
       "python"
     ],
@@ -145,15 +141,13 @@
     "source": "samples/python/hosted-agents/bring-your-own/responses/hello-world/agent.manifest.yaml",
     "extensionTags": [
       "example",
-      "featured",
-      "recommended",
       "Responses Protocol"
     ],
     "templateType": "extension.ai.agent"
   },
   {
     "title": "Note-taking agent (Responses, without a framework, Python)",
-    "description": "Note-taking agent using the Responses protocol. Demonstrates function calling (save_note/get_notes tools) with per-session JSONL persistence and streaming responses.",
+    "description": "Demonstrates function calling with the Responses protocol. The model uses save_note and get_notes tools to manage persistent notes stored as session files.",
     "languages": [
       "python"
     ],
@@ -168,7 +162,7 @@
   },
   {
     "title": "Basic agent (Invocations, Agent Framework, Python)",
-    "description": "A basic Agent Framework agent hosted by Foundry using the Invocations protocol.",
+    "description": "Agent Framework agent using the Invocations protocol. Demonstrates self-managed conversation history and custom HTTP request handling. Use this when you need full control over the request/response contract.",
     "languages": [
       "python"
     ],
@@ -176,13 +170,15 @@
     "source": "samples/python/hosted-agents/agent-framework/invocations/01-basic/agent.manifest.yaml",
     "extensionTags": [
       "example",
-      "Invocations Protocol"
+      "Invocations Protocol",
+      "featured",
+      "recommended"
     ],
     "templateType": "extension.ai.agent"
   },
   {
     "title": "Basic agent (Responses, Agent Framework, Python)",
-    "description": "A basic Agent Framework agent hosted by Foundry using the Responses protocol.",
+    "description": "The simplest Agent Framework agent. Creates a chat agent with instructions and serves it via the Responses protocol. Start here to understand the core pattern.",
     "languages": [
       "python"
     ],
@@ -190,7 +186,9 @@
     "source": "samples/python/hosted-agents/agent-framework/responses/01-basic/agent.manifest.yaml",
     "extensionTags": [
       "example",
-      "Responses Protocol"
+      "Responses Protocol",
+      "featured",
+      "recommended"
     ],
     "templateType": "extension.ai.agent"
   }
