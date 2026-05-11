@@ -1,0 +1,197 @@
+[
+  {
+    "title": "Hello World agent (Responses, Agent Framework, C#)",
+    "description": "Minimal Hello World agent using the Responses protocol with the Agent Framework approach in C#. Uses Microsoft.Agents.AI to create an AIAgent backed by a Foundry model.",
+    "languages": [
+      "dotnetCsharp"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/csharp/hosted-agents/agent-framework/hello-world/agent.manifest.yaml",
+    "extensionTags": [
+      "example",
+      "Responses Protocol",
+      "recommended",
+      "featured"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Agent with Local Tools (Responses, Agent Framework, C#)",
+    "description": "A travel assistant agent with local C# function tools for hotel search in Seattle.",
+    "languages": [
+      "dotnetCsharp"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/csharp/hosted-agents/agent-framework/local-tools/agent.manifest.yaml",
+    "extensionTags": [
+      "local tools",
+      "featured",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Agent with MCP Tools (Responses, Agent Framework, C#)",
+    "description": "A developer assistant with remote MCP tools connecting to GitHub and Microsoft Learn documentation servers.",
+    "languages": [
+      "dotnetCsharp"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/csharp/hosted-agents/agent-framework/mcp-tools/agent.manifest.yaml",
+    "extensionTags": [
+      "MCP",
+      "featured",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Hello World agent (Invocations, without a framework, C#)",
+    "description": "Minimal Hello World agent using the Invocations protocol with a bring-your-own approach in C#. Calls a Foundry model via the Responses API and returns the response as a streaming SSE event stream.",
+    "languages": [
+      "dotnetCsharp"
+    ],
+    "extensionFramework": "Bring Your Own",
+    "source": "samples/csharp/hosted-agents/bring-your-own/invocations/HelloWorld/agent.manifest.yaml",
+    "extensionTags": [
+      "example",
+      "Invocations Protocol",
+      "featured"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Note-taking agent (Responses, without a framework, C#)",
+    "description": "A note-taking agent using the Responses protocol with Azure OpenAI function calling in C#. Demonstrates tool use with per-session JSONL persistence.",
+    "languages": [
+      "dotnetCsharp"
+    ],
+    "extensionFramework": "Bring Your Own",
+    "source": "samples/csharp/hosted-agents/bring-your-own/responses/notetaking-agent/agent.manifest.yaml",
+    "extensionTags": [
+      "function calling",
+      "featured",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Agent with Local Tools (Responses, Agent Framework, Python)",
+    "description": "An Agent Framework agent with local tools hosted by Foundry.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/python/hosted-agents/agent-framework/responses/02-tools/agent.manifest.yaml",
+    "extensionTags": [
+      "local tools",
+      "featured",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Agent with MCP Tools (Responses, Agent Framework, Python)",
+    "description": "An Agent Framework agent with remote MCP tools hosted by Foundry.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/python/hosted-agents/agent-framework/responses/03-mcp/agent.manifest.yaml",
+    "extensionTags": [
+      "MCP",
+      "featured",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Agent with Foundry Toolbox (Responses, Agent Framework, Python)",
+    "description": "An Agent Framework agent with Foundry Toolbox integration.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/python/hosted-agents/agent-framework/responses/04-foundry-toolbox/agent.manifest.yaml",
+    "extensionTags": [
+      "Foundry Toolbox",
+      "Responses Protocol",
+      "featured"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Hello World agent (Invocations, without a framework, Python)",
+    "description": "Minimal Hello World agent using the Invocations protocol with a bring-your-own approach. Calls a Foundry model via the Responses API and returns the response as a streaming SSE event stream.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Bring Your Own",
+    "source": "samples/python/hosted-agents/bring-your-own/invocations/hello-world/agent.manifest.yaml",
+    "extensionTags": [
+      "example",
+      "Invocations Protocol",
+      "featured"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Hello World agent (Responses, without a framework, Python)",
+    "description": "Minimal Hello World agent using the Responses protocol with a bring-your-own approach. Calls a Foundry model via the Responses API and returns the response.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Bring Your Own",
+    "source": "samples/python/hosted-agents/bring-your-own/responses/hello-world/agent.manifest.yaml",
+    "extensionTags": [
+      "example",
+      "featured",
+      "recommended",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Note-taking agent (Responses, without a framework, Python)",
+    "description": "Note-taking agent using the Responses protocol. Demonstrates function calling (save_note/get_notes tools) with per-session JSONL persistence and streaming responses.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Bring Your Own",
+    "source": "samples/python/hosted-agents/bring-your-own/responses/notetaking-agent/agent.manifest.yaml",
+    "extensionTags": [
+      "function calling",
+      "featured",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Basic agent (Invocations, Agent Framework, Python)",
+    "description": "A basic Agent Framework agent hosted by Foundry using the Invocations protocol.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/python/hosted-agents/agent-framework/invocations/01-basic/agent.manifest.yaml",
+    "extensionTags": [
+      "example",
+      "Invocations Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  },
+  {
+    "title": "Basic agent (Responses, Agent Framework, Python)",
+    "description": "A basic Agent Framework agent hosted by Foundry using the Responses protocol.",
+    "languages": [
+      "python"
+    ],
+    "extensionFramework": "Agent Framework",
+    "source": "samples/python/hosted-agents/agent-framework/responses/01-basic/agent.manifest.yaml",
+    "extensionTags": [
+      "example",
+      "Responses Protocol"
+    ],
+    "templateType": "extension.ai.agent"
+  }
+]
