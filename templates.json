@@ -171,8 +171,7 @@
     "extensionTags": [
       "example",
       "Invocations Protocol",
-      "featured",
-      "recommended"
+      "featured"
     ],
     "templateType": "extension.ai.agent"
   },
