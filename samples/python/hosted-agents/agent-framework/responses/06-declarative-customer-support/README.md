@@ -1,39 +1,52 @@
-# What this sample demonstrates
+# Declarative Customer Support Workflow (Responses Protocol)
 
-A realistic **multi-turn** [Agent Framework](https://github.com/microsoft/agent-framework) **declarative workflow** — defined entirely in YAML — hosted using the **Responses protocol**. It shows how a declarative workflow that invokes multiple Foundry-hosted agents can run end-to-end on every user turn while reading the prior conversation through `Conversation.messages` (populated automatically by `Workflow.as_agent()`).
+A realistic **multi-turn** [Agent Framework](https://github.com/microsoft/agent-framework) **declarative workflow** — defined entirely in YAML — hosted on Microsoft Foundry using the **Responses protocol**. It shows how a declarative workflow that invokes multiple Foundry-hosted agents can run end-to-end on every user turn while reading the prior conversation through `Conversation.messages` (populated automatically by `Workflow.as_agent()`).
 
-> Read more about declarative workflows in the [Agent Framework documentation](https://learn.microsoft.com/en-us/agent-framework/workflows/declarative/?pivots=programming-language-python) and about workflow-as-an-agent in the [Workflow as an Agent documentation](https://learn.microsoft.com/en-us/agent-framework/workflows/as-agents?pivots=programming-language-python).
+## Prerequisites
 
-## How It Works
+1. **Azure Developer CLI (`azd`)** — [Install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
+2. Install the AI agent extension:
+   ```bash
+   azd ext install azure.ai.agents
+   ```
+3. Authenticate:
+   ```bash
+   azd auth login
+   ```
 
-### The Workflow
+## Quickstart
 
-[`workflow.yaml`](workflow.yaml) describes a customer-support triage flow:
+### Initialize the agent project
 
-1. `InvokeAzureAgent: TriageAgent` — looks at the full conversation so far and emits a structured `TriageResponse` (`Category`, `NeedsClarification`, `ClarificationQuestion`, `Reply`).
-2. `ConditionGroup` routes on the triage decision:
-   - **NeedsClarification** → `SendActivity` asks one focused follow-up question and ends the turn.
-   - **Category = "Technical"** → `SendActivity` confirms the handoff, then `InvokeAzureAgent: TechSupportAgent` answers with `autoSend: true` so its reply streams directly to the caller.
-   - **Category = "Billing"** → same pattern, routed to `BillingAgent`.
-   - **else** → `SendActivity` returns the triage agent's `Reply` directly (good for greetings or general questions).
+No cloning required. Create a new folder and initialize from the manifest:
 
-Each user message re-runs the workflow from the trigger. Because `Workflow.as_agent()` populates `Conversation.messages` with the prior turns of the conversation, every `InvokeAzureAgent` call sees the full history — which is what makes the triage decision and the specialist follow-ups coherent across turns.
+```bash
+mkdir my-support-agent && cd my-support-agent
 
-### Agent Hosting
+azd ai agent init -m https://github.com/microsoft/foundry-samples/blob/main/samples/python/hosted-agents/agent-framework/responses/06-declarative-customer-support/agent.manifest.yaml
+```
 
-[`main.py`](main.py) builds three `Agent` instances on top of a shared `FoundryChatClient` (one per workflow role), registers them with the `WorkflowFactory` so the YAML's `InvokeAzureAgent` actions can resolve them by name, loads the workflow, wraps it with `.as_agent(...)`, and hands the agent to `ResponsesHostServer`, which provisions a REST API endpoint compatible with the OpenAI Responses protocol.
+Follow the prompts to configure your Foundry project and model deployment. If you don't have an existing Foundry project, `azd ai agent init` will guide you through creating one.
 
-The triage agent is configured with `response_format=TriageResponse` (a Pydantic model) so the workflow can read its structured fields via `Local.Triage.*`. The specialist agents are plain text and use `autoSend: true` to deliver their reply straight to the caller.
+### Provision Azure resources (if needed)
 
-## Running the Agent Host
+If you don't already have a Foundry project and model deployment:
 
-Follow the instructions in the [Running the Agent Host Locally](../../README.md#running-the-agent-host-locally) section of the README in the parent directory to run the agent host.
+```bash
+azd provision
+```
 
-## Interacting with the agent
+### Run the agent locally
 
-> Depending on how you run the agent host, you can invoke the agent using `curl` (`Invoke-WebRequest` in PowerShell) or `azd`. Please refer to the [parent README](../../README.md) for more details. Use this README for sample queries you can send to the agent.
+```bash
+azd ai agent run
+```
 
-A typical multi-turn session looks like this:
+The agent host will start on `http://localhost:8088`.
+
+### Invoke the local agent
+
+In a separate terminal, from the project directory. A typical multi-turn session:
 
 ```bash
 azd ai agent invoke --local "I have a problem"
@@ -44,7 +57,6 @@ azd ai agent invoke --local "My laptop won't turn on"
 # → TechSupportAgent: "Let's start simple — is the charger LED on when plugged in?"
 
 azd ai agent invoke --local "Yes the LED is on"
-# → "Connecting you with technical support..."
 # → TechSupportAgent: "Great. Try a hard reset: hold the power button for 30 seconds..."
 ```
 
@@ -56,12 +68,40 @@ azd ai agent invoke --local "I was double-charged this month"
 # → BillingAgent: "I'm sorry about that. Can you share the last 4 digits of the card on file?"
 ```
 
-You can also POST directly to the Responses endpoint:
+## Deploy to Foundry
+
+Once tested locally, deploy to Microsoft Foundry:
 
 ```bash
-curl -X POST http://localhost:8088/responses -H "Content-Type: application/json" -d '{"input": "My internet is down"}'
+azd deploy
 ```
 
-## Deploying the Agent to Foundry
+For the full deployment guide, see [Deploy a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent).
 
-To host the agent on Foundry, follow the instructions in the [Deploying the Agent to Foundry](../../README.md#deploying-the-agent-to-foundry) section of the README in the parent directory.
+### Invoke the deployed agent
+
+```bash
+azd ai agent invoke "I have a problem with my account"
+```
+
+## How it works
+
+[`workflow.yaml`](workflow.yaml) describes a customer-support triage flow:
+
+1. `InvokeAzureAgent: TriageAgent` — looks at the full conversation so far and emits a structured `TriageResponse` (`Category`, `NeedsClarification`, `ClarificationQuestion`, `Reply`).
+2. `ConditionGroup` routes on the triage decision:
+   - **NeedsClarification** → asks one focused follow-up question and ends the turn.
+   - **Category = "Technical"** → hands off to `TechSupportAgent`.
+   - **Category = "Billing"** → hands off to `BillingAgent`.
+   - **else** → returns the triage agent's `Reply` directly (good for greetings or general questions).
+
+[`main.py`](main.py) builds three `Agent` instances on top of a shared `FoundryChatClient` (one per workflow role), registers them with the `WorkflowFactory` so the YAML's `InvokeAzureAgent` actions can resolve them by name, loads the workflow, wraps it with `.as_agent(...)`, and hands the agent to `ResponsesHostServer`. See [main.py](main.py) and [workflow.yaml](workflow.yaml) for the implementation.
+
+## Next steps
+
+- [Quickstart: Create a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/quickstarts/quickstart-hosted-agent) — end-to-end walkthrough using `azd`
+- [Declarative workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/declarative/?pivots=programming-language-python) — learn more about YAML-defined workflows
+- [Workflow as an agent](https://learn.microsoft.com/en-us/agent-framework/workflows/as-agents?pivots=programming-language-python) — serving workflows via the Responses protocol
+- [Manage hosted agents](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/manage-hosted-agent) — monitor and manage deployed agents
+- [Basic agent](../01-basic/) — minimal agent with no tools
+- [Programmatic workflows](../05-workflows/) — code-defined multi-agent pipeline

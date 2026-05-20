@@ -1,43 +1,84 @@
-# What this sample demonstrates
+# Multi-Agent Workflow (Responses Protocol)
 
-An [Agent Framework](https://github.com/microsoft/agent-framework) workflow demonstrating **multi-agent chaining** and hosted using the **Responses protocol**. It shows how to use the Agent Framework's `WorkflowBuilder` to compose a pipeline of specialized agents — a slogan writer, a legal reviewer, and a formatter — that process a request sequentially. Each agent receives only the output of the previous agent, and only the final formatted result is returned to the caller.
-
-> The workflow will be used as an agent. Read more about Agent Framework workflows in the [Agent Framework documentation](https://learn.microsoft.com/en-us/agent-framework/workflows/) and workflow as an agent in the [Workflow as an Agent documentation](https://learn.microsoft.com/en-us/agent-framework/workflows/as-agents?pivots=programming-language-python).
+An [Agent Framework](https://github.com/microsoft/agent-framework) workflow demonstrating **multi-agent chaining**, hosted on Microsoft Foundry using the **Responses protocol**. It shows how to use the Agent Framework's `WorkflowBuilder` to compose a pipeline of specialized agents — a slogan writer, a legal reviewer, and a formatter — that process a request sequentially. Each agent receives only the output of the previous agent, and only the final formatted result is returned to the caller.
 
 > This sample requires a more advanced model because the model needs to continue the conversation from an assistant message. Not all models perform well in this scenario. Tested with OpenAI's model `gpt-5.4`.
 
-## How It Works
+## Prerequisites
 
-### Model Integration
+1. **Azure Developer CLI (`azd`)** — [Install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
+2. Install the AI agent extension:
+   ```bash
+   azd ext install azure.ai.agents
+   ```
+3. Authenticate:
+   ```bash
+   azd auth login
+   ```
 
-The agent creates three specialized `Agent` instances sharing the same `FoundryChatClient`: a **writer** that generates slogans, a **legal reviewer** that ensures compliance, and a **formatter** that styles the output. Each agent is wrapped in an `AgentExecutor` with `context_mode="last_agent"` so it only sees the previous agent's output. The `WorkflowBuilder` wires them into a linear pipeline and limits the output to the formatter's result.
+## Quickstart
 
-See [main.py](main.py) for the full implementation.
+### Initialize the agent project
 
-### Agent Hosting
-
-The workflow is exposed as a single agent via `.as_agent()` and hosted using the [Agent Framework](https://github.com/microsoft/agent-framework) with the `ResponsesHostServer`, which provisions a REST API endpoint compatible with the OpenAI Responses protocol.
-
-## Running the Agent Host
-
-Follow the instructions in the [Running the Agent Host Locally](../../README.md#running-the-agent-host-locally) section of the README in the parent directory to run the agent host.
-
-## Interacting with the agent
-
-> Depending on how you run the agent host, you can invoke the agent using `curl` (`Invoke-WebRequest` in PowerShell) or `azd`. Please refer to the [parent README](../../README.md) for more details. Use this README for sample queries you can send to the agent.
-
-Send a POST request to the server with a JSON body containing a "message" field to interact with the agent. For example:
+No cloning required. Create a new folder and initialize from the manifest:
 
 ```bash
-curl -X POST http://localhost:8088/responses -H "Content-Type: application/json" -d '{"input": "Create a slogan for a new electric SUV that is affordable and fun to drive."}'
+mkdir my-workflow-agent && cd my-workflow-agent
+
+azd ai agent init -m https://github.com/microsoft/foundry-samples/blob/main/samples/python/hosted-agents/agent-framework/responses/05-workflows/agent.manifest.yaml
 ```
 
-Invoke with `azd`:
+Follow the prompts to configure your Foundry project and model deployment. If you don't have an existing Foundry project, `azd ai agent init` will guide you through creating one.
+
+### Provision Azure resources (if needed)
+
+If you don't already have a Foundry project and model deployment:
+
+```bash
+azd provision
+```
+
+### Run the agent locally
+
+```bash
+azd ai agent run
+```
+
+The agent host will start on `http://localhost:8088`.
+
+### Invoke the local agent
+
+In a separate terminal, from the project directory:
 
 ```bash
 azd ai agent invoke --local "Create a slogan for a new electric SUV that is affordable and fun to drive."
 ```
 
-## Deploying the Agent to Foundry
+## Deploy to Foundry
 
-To host the agent on Foundry, follow the instructions in the [Deploying the Agent to Foundry](../../README.md#deploying-the-agent-to-foundry) section of the README in the parent directory.
+Once tested locally, deploy to Microsoft Foundry:
+
+```bash
+azd deploy
+```
+
+For the full deployment guide, see [Deploy a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent).
+
+### Invoke the deployed agent
+
+```bash
+azd ai agent invoke "Create a slogan for a new electric SUV that is affordable and fun to drive."
+```
+
+## How it works
+
+The agent creates three specialized `Agent` instances sharing the same `FoundryChatClient`: a **writer** that generates slogans, a **legal reviewer** that ensures compliance, and a **formatter** that styles the output. Each agent is wrapped in an `AgentExecutor` with `context_mode="last_agent"` so it only sees the previous agent's output. The `WorkflowBuilder` wires them into a linear pipeline and limits the output to the formatter's result. The workflow is converted to a standard agent via `.as_agent()` and served via `ResponsesHostServer`. See [main.py](main.py) for the implementation.
+
+## Next steps
+
+- [Quickstart: Create a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/quickstarts/quickstart-hosted-agent) — end-to-end walkthrough using `azd`
+- [Agent Framework workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/) — learn more about building workflows
+- [Workflow as an agent](https://learn.microsoft.com/en-us/agent-framework/workflows/as-agents?pivots=programming-language-python) — serving workflows via the Responses protocol
+- [Manage hosted agents](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/manage-hosted-agent) — monitor and manage deployed agents
+- [Basic agent](../01-basic/) — minimal agent with no tools
+- [Declarative workflows](../06-declarative-customer-support/) — YAML-defined workflow with multi-turn routing
