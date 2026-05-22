@@ -38,7 +38,7 @@ Use the table below to choose the right infrastructure template for your scenari
 | Template | Agent Type | Networking | Identity | Key Use Case |
 |----------|-----------|------------|----------|-------------|
 | [**15**](../15-private-network-standard-agent-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | E2E network isolation with full agent capabilities |
-| [**19**](../19-private-network-agents-tools-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | Same as 15 **plus** tools behind VNet (MCP, OpenAPI, Functions, A2A) |
+| [**19**](../19-private-network-agent-tools/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | Same as 15 **plus** tools behind VNet (MCP, OpenAPI, Functions, A2A) |
 | [**17**](../17-private-network-standard-user-assigned-identity-agent-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | **User Assigned MI** | Same as 15 but with user-managed identity |
 | [**16**](../16-private-network-standard-agent-apim-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | Same as 15 **plus** private APIM integration |
 | [**18** (this template)](../18-managed-virtual-network/) | Standard (BYO resources) | **Managed VNet** (Microsoft-managed) | System Assigned MI | Network isolation without managing your own VNet |
@@ -58,9 +58,9 @@ Use the table below to choose the right infrastructure template for your scenari
 ## Prerequisites
 
 1. **Active Azure subscription with appropriate permissions**
-  - **Azure AI Account Owner**: Needed to create the Microsoft Foundry account and project.
+  - **Foundry Account Owner**: Needed to create the Microsoft Foundry account and project.
   - **Owner or Role Based Access Administrator**: Needed to assign RBAC on the Azure resources used by this template.
-  - **Azure AI User**: Needed to create and use agents, projects, or evaluation workloads after deployment.
+  - **Foundry User**: Needed to create and use agents, projects, or evaluation workloads after deployment.
 
 1. Azure CLI installed and configured on your local workstation or deployment pipeline server. Azure CLI support is required to run the 'az rest' commands to update your managed virtual network. 
 

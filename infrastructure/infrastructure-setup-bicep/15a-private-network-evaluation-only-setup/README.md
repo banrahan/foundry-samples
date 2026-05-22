@@ -55,7 +55,7 @@ Use the table below to choose the right infrastructure template for your scenari
 |----------|-----------|------------|----------|-------------|
 | [**15a** (this template)](../15a-private-network-evaluation-only-setup/) | Evaluation only | BYO VNet + Private Endpoints | System Assigned MI | Minimal setup for evaluation — no Cosmos DB, AI Search, or capability host |
 | [**15**](../15-private-network-standard-agent-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | E2E network isolation with full agent capabilities |
-| [**19**](../19-private-network-agents-tools-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | Same as 15 **plus** tools behind VNet (MCP, OpenAPI, Functions, A2A) |
+| [**19**](../19-private-network-agent-tools/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | Same as 15 **plus** tools behind VNet (MCP, OpenAPI, Functions, A2A) |
 | [**17**](../17-private-network-standard-user-assigned-identity-agent-setup/) | Standard (BYO resources) | BYO VNet + Private Endpoints | **User Assigned MI** | Same as 15 but with user-managed identity |
 | [**16**](../16-private-network-standard-agent-apim-setup-preview/) | Standard (BYO resources) | BYO VNet + Private Endpoints | System Assigned MI | Same as 15 **plus** private APIM integration (preview) |
 | [**18**](../18-managed-virtual-network-preview/) | Standard (BYO resources) | **Managed VNet** (Microsoft-managed) | System Assigned MI | Network isolation without managing your own VNet (preview) |
@@ -75,9 +75,9 @@ Use the table below to choose the right infrastructure template for your scenari
 ## Prerequisites
 
 1. **Active Azure subscription with appropriate permissions**
-  - **Azure AI Account Owner**: Needed to create the Microsoft Foundry account and project.
+  - **Foundry Account Owner**: Needed to create the Microsoft Foundry account and project.
   - **Owner or Role Based Access Administrator**: Needed to assign RBAC on the Azure resources used by this template.
-  - **Azure AI User**: Needed to create and use agents, projects, or evaluation workloads after deployment.
+  - **Foundry User**: Needed to create and use agents, projects, or evaluation workloads after deployment.
   In this template, the required RBAC assignments apply only to the storage account.
 
 1. **Register Resource Providers**
@@ -321,7 +321,7 @@ Private endpoints ensure secure, internal-only connectivity. Private endpoints a
 
 - **Role Assignments**
   - **AI Services Account**
-    - Azure AI User (`53ca6127-db72-4b80-b1b0-d745d6d5456d`) — grants the project MI data-plane access
+    - Foundry User (`53ca6127-db72-4b80-b1b0-d745d6d5456d`) — grants the project MI data-plane access
   - **Azure Storage Account**
     - Storage Blob Data Contributor (`ba92f5b4-2d11-453d-a403-e96b0029c9fe`)
     - Storage Blob Data Owner (`b7e6dc6d-f1e8-4753-8033-0f276bb0955b`) — scoped to project containers
@@ -333,7 +333,7 @@ Private endpoints ensure secure, internal-only connectivity. Private endpoints a
 ```text
 modules-network-secured/
 ├── ai-account-identity.bicep                       # Microsoft Foundry deployment and configuration
-├── ai-account-role-assignment.bicep                # Azure AI User role assignment on the account
+├── ai-account-role-assignment.bicep                # Foundry User role assignment on the account
 ├── ai-project-identity.bicep                       # Foundry project deployment with storage connection
 ├── azure-storage-account-role-assignment.bicep      # Storage Account RBAC configuration
 ├── blob-storage-container-role-assignments.bicep    # Blob Storage Container RBAC configuration

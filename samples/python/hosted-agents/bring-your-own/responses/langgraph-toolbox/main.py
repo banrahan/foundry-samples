@@ -30,7 +30,7 @@ import logging
 import os
 import pathlib
 import re
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import httpx
 from dotenv import load_dotenv
@@ -38,7 +38,6 @@ from dotenv import load_dotenv
 load_dotenv(override=False)
 
 from langchain_openai import ChatOpenAI
-from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
 from azure.ai.agentserver.responses import (
     ResponseContext,
@@ -49,7 +48,7 @@ from azure.ai.agentserver.responses import (
 )
 from azure.ai.agentserver.responses.models import CreateResponse
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_azure_ai.tools import AzureAIProjectToolbox
 
 # ── Agent name and logger ────────────────────────────────────────────────────
 
@@ -104,18 +103,33 @@ llm = ChatOpenAI(
 
 # ── Toolbox MCP helpers ────────────────────────────────────────────────────
 
-# TOOLBOX_NAME is declared in agent.manifest.yaml and resolved from the toolbox
-# resource at deploy time. The full MCP URL is constructed from the project endpoint.
-# Falls back to TOOLBOX_ENDPOINT for local testing / explicit override.
+# Toolbox MCP endpoint resolution (in priority order):
+#   1. TOOLBOX_ENDPOINT — explicit full URL override (CI / local).
+#   2. TOOLBOX_<NAME>_MCP_ENDPOINT — azd auto-injects this per toolbox declared
+#      in azure.yaml. Variable name = upper(name) with dashes -> underscores.
+#   3. Construct from PROJECT_ENDPOINT + TOOLBOX_NAME as a final fallback.
+_TOOLBOX_ENDPOINT_OVERRIDE = os.getenv("TOOLBOX_ENDPOINT", "")
 _TOOLBOX_NAME = os.getenv("TOOLBOX_NAME", "")
-TOOLBOX_ENDPOINT = (
-    f"{PROJECT_ENDPOINT.rstrip('/')}/toolboxes/{_TOOLBOX_NAME}/mcp?api-version=v1"
-    if _TOOLBOX_NAME
-    else os.getenv("TOOLBOX_ENDPOINT", "")
-)
+if _TOOLBOX_ENDPOINT_OVERRIDE:
+    TOOLBOX_ENDPOINT = _TOOLBOX_ENDPOINT_OVERRIDE
+elif _TOOLBOX_NAME:
+    _azd_injected_var = (
+        f"TOOLBOX_{_TOOLBOX_NAME.upper().replace('-', '_')}_MCP_ENDPOINT"
+    )
+    TOOLBOX_ENDPOINT = os.getenv(_azd_injected_var) or (
+        f"{PROJECT_ENDPOINT.rstrip('/')}/toolboxes/{_TOOLBOX_NAME}/mcp?api-version=v1"
+    )
+else:
+    TOOLBOX_ENDPOINT = ""
 
 # Feature-flag header value (e.g. "Toolboxes=V1Preview").
 _TOOLBOX_FEATURES = os.getenv("FOUNDRY_AGENT_TOOLBOX_FEATURES", "Toolboxes=V1Preview")
+
+
+def _toolbox_name_from_endpoint(endpoint: str) -> str | None:
+    """Extract toolbox name from endpoint URL path."""
+    match = re.search(r"/toolboxes/([^/]+)", endpoint)
+    return unquote(match.group(1)) if match else None
 
 SYSTEM_PROMPT = """You are a helpful assistant with access to Azure AI Foundry toolbox tools.
 
@@ -140,64 +154,29 @@ def create_agent(model, tools):
 
 
 async def quickstart():
-    """Build and return a LangGraph agent wired to an MCP client.
+    """Build and return a LangGraph agent wired to a Foundry toolbox.
 
-    Connects to the Azure AI Foundry toolbox MCP endpoint specified in
-    TOOLBOX_MCP_ENDPOINT.
-
-    When the toolbox requires OAuth consent (e.g. GitHub OAuth connections),
-    the MCP server responds with error code -32006 and the consent URL as the
-    message.  This function detects that scenario, logs the URL, and re-raises
-    so operators can complete the OAuth flow before retrying.
+    Uses AzureAIProjectToolbox from langchain-azure-ai to resolve and load
+    toolbox tools from the project endpoint.
     """
-    if not TOOLBOX_ENDPOINT:
+    # Resolve toolbox name: prefer parsing it from the resolved TOOLBOX_ENDPOINT
+    # (so an explicit endpoint override wins), fall back to TOOLBOX_NAME env var.
+    toolbox_name = _toolbox_name_from_endpoint(TOOLBOX_ENDPOINT) or _TOOLBOX_NAME
+    if not toolbox_name:
         raise ValueError(
-            "TOOLBOX_ENDPOINT must be set. Declare it in agent.manifest.yaml "
-            "or set it directly for local dev."
+            "Set TOOLBOX_NAME in the environment or provide TOOLBOX_ENDPOINT "
+            "that contains '/toolboxes/<name>' in its path."
         )
 
-    # Connect to the Azure AI Foundry toolbox MCP endpoint.
     logger.info(f"Connecting to toolbox: {TOOLBOX_ENDPOINT}")
-    toolbox_auth = _AzureTokenAuth()
     extra_headers = {"Foundry-Features": _TOOLBOX_FEATURES} if _TOOLBOX_FEATURES else {}
-
-    client = MultiServerMCPClient(
-        {
-            "toolbox": {
-                "url": TOOLBOX_ENDPOINT,
-                "transport": "streamable_http",
-                "headers": extra_headers,
-                "auth": toolbox_auth,
-            }
-        }
+    toolbox = AzureAIProjectToolbox(
+        project_endpoint=PROJECT_ENDPOINT,
+        toolbox_name=toolbox_name,
+        credential=DefaultAzureCredential(),
+        extra_headers=extra_headers,
     )
-
-    try:
-        tools = await client.get_tools()
-    except BaseException as exc:
-        # OAuth consent required — the MCP server returns error code -32006
-        # with the consent URL as the message.  The MCP client wraps this in
-        # one or more ExceptionGroup layers, so we recurse to find it.
-        if _is_consent_error(exc):
-            consent_url = _extract_consent_url(exc)
-            logger.warning(
-                "OAuth consent required. Open the following URL in a browser "
-                "to authorize, then restart the agent:\n\n  %s\n",
-                consent_url,
-            )
-            # Instead of crashing the container, return an agent with a
-            # fallback tool that surfaces the consent URL to the caller.
-
-            @tool
-            def oauth_consent_required(query: str) -> str:
-                """Return instructions for completing OAuth consent."""
-                return (
-                    f"OAuth consent is required before this agent's tools can "
-                    f"be used. Please open the following URL in a browser to "
-                    f"authorize access, then try again:\n\n  {consent_url}"
-                )
-            return create_agent(llm, [oauth_consent_required]), client
-        raise
+    tools = await toolbox.get_tools()
 
     # Enable error handling so that tool-call failures are returned as tool
     # messages instead of raising ToolException (which breaks the agent's
@@ -221,7 +200,7 @@ async def quickstart():
             schema["properties"] = props
 
     logger.info(f"Loaded {len(tools)} tools from MCP")
-    return create_agent(llm, tools), client
+    return create_agent(llm, tools), toolbox
 
 
 def _extract_assistant_text(result: dict) -> str:
